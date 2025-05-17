@@ -1,7 +1,7 @@
 > A CLI tool to find overlapping working hours between two timezones.
 
 <p align="center">
-  <img width="600" src="./example.svg">
+  <img width="600" src="./terminal.svg">
 </p>
 
 # wfh-eq
