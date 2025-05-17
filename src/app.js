@@ -1,31 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { Text, Box } from 'ink';
+import React, {useState, useEffect} from 'react';
+import {Text, Box} from 'ink';
 import SelectInput from 'ink-select-input';
-import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
-import { isWithinInterval } from 'date-fns';
+import {formatInTimeZone, zonedTimeToUtc} from 'date-fns-tz';
+import {isWithinInterval} from 'date-fns';
 
 const timeZones = [
-	{ label: 'America/New_York', value: 'America/New_York', shorthand: 'EST/EDT' },
-	{ label: 'America/Chicago', value: 'America/Chicago', shorthand: 'CST/CDT' },
-	{ label: 'America/Denver', value: 'America/Denver', shorthand: 'MST/MDT' },
-	{ label: 'America/Los_Angeles', value: 'America/Los_Angeles', shorthand: 'PST/PDT' },
-	{ label: 'America/Anchorage', value: 'America/Anchorage', shorthand: 'AKST/AKDT' },
-	{ label: 'America/Phoenix', value: 'America/Phoenix', shorthand: 'MST' },
-	{ label: 'America/Sao_Paulo', value: 'America/Sao_Paulo', shorthand: 'BRT' },
-	{ label: 'Europe/London', value: 'Europe/London', shorthand: 'GMT/BST' },
-	{ label: 'Europe/Paris', value: 'Europe/Paris', shorthand: 'CET/CEST' },
-	{ label: 'Europe/Berlin', value: 'Europe/Berlin', shorthand: 'CET/CEST' },
-	{ label: 'Europe/Moscow', value: 'Europe/Moscow', shorthand: 'MSK' },
-	{ label: 'Africa/Johannesburg', value: 'Africa/Johannesburg', shorthand: 'SAST' },
-	{ label: 'Asia/Dubai', value: 'Asia/Dubai', shorthand: 'GST' },
-	{ label: 'Asia/Kolkata', value: 'Asia/Kolkata', shorthand: 'IST' },
-	{ label: 'Asia/Bangkok', value: 'Asia/Bangkok', shorthand: 'ICT' },
-	{ label: 'Asia/Singapore', value: 'Asia/Singapore', shorthand: 'SGT' },
-	{ label: 'Asia/Tokyo', value: 'Asia/Tokyo', shorthand: 'JST' },
-	{ label: 'Asia/Shanghai', value: 'Asia/Shanghai', shorthand: 'CST' },
-	{ label: 'Asia/Seoul', value: 'Asia/Seoul', shorthand: 'KST' },
-	{ label: 'Australia/Sydney', value: 'Australia/Sydney', shorthand: 'AEST/AEDT' },
-	{ label: 'Pacific/Auckland', value: 'Pacific/Auckland', shorthand: 'NZST/NZDT' },
+	{label: 'America/New_York', value: 'America/New_York', shorthand: 'EST/EDT'},
+	{label: 'America/Chicago', value: 'America/Chicago', shorthand: 'CST/CDT'},
+	{label: 'America/Denver', value: 'America/Denver', shorthand: 'MST/MDT'},
+	{
+		label: 'America/Los_Angeles',
+		value: 'America/Los_Angeles',
+		shorthand: 'PST/PDT',
+	},
+	{
+		label: 'America/Anchorage',
+		value: 'America/Anchorage',
+		shorthand: 'AKST/AKDT',
+	},
+	{label: 'America/Phoenix', value: 'America/Phoenix', shorthand: 'MST'},
+	{label: 'America/Sao_Paulo', value: 'America/Sao_Paulo', shorthand: 'BRT'},
+	{label: 'Europe/London', value: 'Europe/London', shorthand: 'GMT/BST'},
+	{label: 'Europe/Paris', value: 'Europe/Paris', shorthand: 'CET/CEST'},
+	{label: 'Europe/Berlin', value: 'Europe/Berlin', shorthand: 'CET/CEST'},
+	{label: 'Europe/Moscow', value: 'Europe/Moscow', shorthand: 'MSK'},
+	{
+		label: 'Africa/Johannesburg',
+		value: 'Africa/Johannesburg',
+		shorthand: 'SAST',
+	},
+	{label: 'Asia/Dubai', value: 'Asia/Dubai', shorthand: 'GST'},
+	{label: 'Asia/Kolkata', value: 'Asia/Kolkata', shorthand: 'IST'},
+	{label: 'Asia/Bangkok', value: 'Asia/Bangkok', shorthand: 'ICT'},
+	{label: 'Asia/Singapore', value: 'Asia/Singapore', shorthand: 'SGT'},
+	{label: 'Asia/Tokyo', value: 'Asia/Tokyo', shorthand: 'JST'},
+	{label: 'Asia/Shanghai', value: 'Asia/Shanghai', shorthand: 'CST'},
+	{label: 'Asia/Seoul', value: 'Asia/Seoul', shorthand: 'KST'},
+	{
+		label: 'Australia/Sydney',
+		value: 'Australia/Sydney',
+		shorthand: 'AEST/AEDT',
+	},
+	{
+		label: 'Pacific/Auckland',
+		value: 'Pacific/Auckland',
+		shorthand: 'NZST/NZDT',
+	},
 ];
 
 const WORK_HOURS = {
@@ -35,10 +55,10 @@ const WORK_HOURS = {
 
 const selectInputItems = timeZones.map(tz => ({
 	label: `${tz.label} (${tz.shorthand})`,
-	value: tz.value
+	value: tz.value,
 }));
 
-const TimeBlock = ({ isWorkingHour, isOverlap }) => {
+const TimeBlock = ({isWorkingHour, isOverlap}) => {
 	let color = 'gray';
 	let char = '██ ';
 	if (isWorkingHour && isOverlap) {
@@ -51,12 +71,12 @@ const TimeBlock = ({ isWorkingHour, isOverlap }) => {
 	return <Text color={color}>{char}</Text>;
 };
 
-const getTzShorthand = (tzValue) => {
+const getTzShorthand = tzValue => {
 	const tz = timeZones.find(tz => tz.value === tzValue);
 	return tz ? tz.shorthand : '';
 };
 
-const TimeRow = ({ timezone, workingHours, overlapHours, hourLabels }) => {
+const TimeRow = ({timezone, workingHours, overlapHours, hourLabels}) => {
 	return (
 		<Box>
 			<Box width={20}>
@@ -79,7 +99,7 @@ const TimeRow = ({ timezone, workingHours, overlapHours, hourLabels }) => {
 const getOverlapHours = (tzA, tzB) => {
 	const today = new Date();
 	const baseDate = today.toISOString().slice(0, 10); // YYYY-MM-DD
-	const getDateInTzA = (hour) =>
+	const getDateInTzA = hour =>
 		zonedTimeToUtc(`${baseDate}T${String(hour).padStart(2, '0')}:00:00`, tzA);
 	const overlapA = [];
 	const overlapB = [];
@@ -87,19 +107,31 @@ const getOverlapHours = (tzA, tzB) => {
 		// Hour in tzA
 		const dateA = getDateInTzA(hour);
 		const hourInB = parseInt(formatInTimeZone(dateA, tzB, 'H'));
-		const isAWork = isWithinInterval(hour, { start: WORK_HOURS.start, end: WORK_HOURS.end - 1 });
-		const isBWork = isWithinInterval(hourInB, { start: WORK_HOURS.start, end: WORK_HOURS.end - 1 });
+		const isAWork = isWithinInterval(hour, {
+			start: WORK_HOURS.start,
+			end: WORK_HOURS.end - 1,
+		});
+		const isBWork = isWithinInterval(hourInB, {
+			start: WORK_HOURS.start,
+			end: WORK_HOURS.end - 1,
+		});
 		if (isAWork && isBWork) overlapA.push(hour);
 	}
 	for (let hour = 0; hour < 24; hour++) {
 		// Hour in tzB
 		const dateB = getDateInTzA(hour); // intentionally use tzA as base for mapping
 		const hourInA = parseInt(formatInTimeZone(dateB, tzA, 'H'));
-		const isBWork = isWithinInterval(hour, { start: WORK_HOURS.start, end: WORK_HOURS.end - 1 });
-		const isAWork = isWithinInterval(hourInA, { start: WORK_HOURS.start, end: WORK_HOURS.end - 1 });
+		const isBWork = isWithinInterval(hour, {
+			start: WORK_HOURS.start,
+			end: WORK_HOURS.end - 1,
+		});
+		const isAWork = isWithinInterval(hourInA, {
+			start: WORK_HOURS.start,
+			end: WORK_HOURS.end - 1,
+		});
 		if (isBWork && isAWork) overlapB.push(hour);
 	}
-	return { overlapA, overlapB };
+	return {overlapA, overlapB};
 };
 
 const HourLabelRow = ({hourLabels}) => (
@@ -107,13 +139,15 @@ const HourLabelRow = ({hourLabels}) => (
 		<Box width={20} />
 		<Box>
 			{hourLabels.map((label, idx) => (
-				<Text key={idx} dimColor>{label.padStart(2, '0')} </Text>
+				<Text key={idx} dimColor>
+					{label.padStart(2, '0')}{' '}
+				</Text>
 			))}
 		</Box>
 	</Box>
 );
 
-const SelectItem = ({ label, isSelected }) => (
+const SelectItem = ({label, isSelected}) => (
 	<Text color={isSelected ? 'blue' : undefined}>{label}</Text>
 );
 
@@ -129,12 +163,15 @@ export default function App() {
 
 	useEffect(() => {
 		if (firstTimezone && secondTimezone) {
-			const firstHours = Array.from({ length: 24 }, (_, i) => i);
+			const firstHours = Array.from({length: 24}, (_, i) => i);
 			const today = new Date();
 			const baseDate = today.toISOString().slice(0, 10); // YYYY-MM-DD
 
-			const getDateInFirstTz = (hour) =>
-				zonedTimeToUtc(`${baseDate}T${String(hour).padStart(2, '0')}:00:00`, firstTimezone);
+			const getDateInFirstTz = hour =>
+				zonedTimeToUtc(
+					`${baseDate}T${String(hour).padStart(2, '0')}:00:00`,
+					firstTimezone,
+				);
 
 			setFirstWorkingHours(
 				firstHours.filter(h => h >= WORK_HOURS.start && h < WORK_HOURS.end),
@@ -143,8 +180,14 @@ export default function App() {
 			for (let hour = 0; hour < 24; hour++) {
 				const dateA = getDateInFirstTz(hour);
 				const hourInB = parseInt(formatInTimeZone(dateA, secondTimezone, 'H'));
-				const isAWork = isWithinInterval(hour, { start: WORK_HOURS.start, end: WORK_HOURS.end - 1 });
-				const isBWork = isWithinInterval(hourInB, { start: WORK_HOURS.start, end: WORK_HOURS.end - 1 });
+				const isAWork = isWithinInterval(hour, {
+					start: WORK_HOURS.start,
+					end: WORK_HOURS.end - 1,
+				});
+				const isBWork = isWithinInterval(hourInB, {
+					start: WORK_HOURS.start,
+					end: WORK_HOURS.end - 1,
+				});
 				if (isAWork && isBWork) overlapA.push(hour);
 			}
 			setFirstOverlap(overlapA);
@@ -158,7 +201,9 @@ export default function App() {
 			const secondWorking = firstHours
 				.map(hour => {
 					const dateA = getDateInFirstTz(hour);
-					const hourInB = parseInt(formatInTimeZone(dateA, secondTimezone, 'H'));
+					const hourInB = parseInt(
+						formatInTimeZone(dateA, secondTimezone, 'H'),
+					);
 					return hourInB >= WORK_HOURS.start && hourInB < WORK_HOURS.end
 						? hour
 						: null;
@@ -169,8 +214,12 @@ export default function App() {
 			const overlap = firstHours.filter(hour => {
 				const dateA = getDateInFirstTz(hour);
 				const hourInB = parseInt(formatInTimeZone(dateA, secondTimezone, 'H'));
-				return (hour >= WORK_HOURS.start && hour < WORK_HOURS.end) &&
-					(hourInB >= WORK_HOURS.start && hourInB < WORK_HOURS.end);
+				return (
+					hour >= WORK_HOURS.start &&
+					hour < WORK_HOURS.end &&
+					hourInB >= WORK_HOURS.start &&
+					hourInB < WORK_HOURS.end
+				);
 			});
 			setSecondOverlap(overlap);
 		}
@@ -191,9 +240,7 @@ export default function App() {
 			<Box flexDirection="column">
 				<Text>Select your timezone:</Text>
 				<Box marginBottom={1}>
-					<Text>
-
-					</Text>
+					<Text></Text>
 				</Box>
 				<SelectInput
 					items={selectInputItems}
@@ -210,13 +257,15 @@ export default function App() {
 				<Text>Select the other timezone:</Text>
 				<Box marginBottom={1}>
 					<Text>
-						<Text>{selectInputItems.find(i => i.value === firstTimezone)?.label}</Text>
+						<Text>
+							{selectInputItems.find(i => i.value === firstTimezone)?.label}
+						</Text>
 					</Text>
 				</Box>
-				<SelectInput 
-					items={selectInputItems} 
+				<SelectInput
+					items={selectInputItems}
 					itemComponent={SelectItem}
-					onSelect={handleSelect} 
+					onSelect={handleSelect}
 				/>
 			</Box>
 		);
@@ -233,12 +282,18 @@ export default function App() {
 				<Text color="gray">█</Text>
 				<Text> Non-working Hours</Text>
 			</Box>
-			<HourLabelRow hourLabels={Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))} />
+			<HourLabelRow
+				hourLabels={Array.from({length: 24}, (_, i) =>
+					String(i).padStart(2, '0'),
+				)}
+			/>
 			<TimeRow
 				timezone={firstTimezone}
 				workingHours={firstWorkingHours}
 				overlapHours={firstOverlap}
-				hourLabels={Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))}
+				hourLabels={Array.from({length: 24}, (_, i) =>
+					String(i).padStart(2, '0'),
+				)}
 			/>
 			<TimeRow
 				timezone={secondTimezone}
